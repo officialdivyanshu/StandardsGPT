@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StandardsGPT - Gym AI Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-light: #e6f7ff;
+            --primary: #2d9cdb;
+            --primary-dark: #1a75bb;
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --border-radius: 16px;
+            --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 25px rgba(0, 0, 0, 0.15);
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background: linear-gradient(135deg, var(--primary-light), #ffffff);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: var(--text-primary);
+            padding: 20px;
+            background-attachment: fixed;
+        }
+
+        /* Premium Header */
+        .header {
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 0;
+            position: relative;
+        }
+
+        .logo {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 32px;
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            text-align: center;
+        }
+
+        .logo-icon {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            color: white;
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-weight: 700;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Premium Chat Container */
+        .chat-container {
+            max-width: 700px;
+            width: 90%;
+            max-height: 60vh;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            background: var(--glass-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-height: 100%;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 18px;
+            border-radius: 18px;
+            line-height: 1.6;
+            animation: fadeIn 0.4s ease-out;
+            position: relative;
+            box-shadow: var(--shadow-sm);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-message {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+
+        .ai-message {
+            background: white;
+            color: var(--text-primary);
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .message-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+        }
+
+        .ai-icon {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            color: white;
+            font-size: 14px;
+        }
+
+        .user-icon {
+            width: 28px;
+            height: 28px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            color: var(--primary);
+            font-size: 14px;
+        }
+
+        .message-content {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .chat-input-container {
+            display: flex;
+            padding: 20px;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            background: white;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 16px 20px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50px;
+            outline: none;
+            font-size: 16px;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .chat-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(45, 156, 219, 0.2);
+        }
+
+        .send-button {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-left: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .send-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .send-button:active {
+            transform: translateY(0);
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            background: white;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            font-style: italic;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .typing-indicator span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            margin-left: 5px;
+            animation: pulse 1.5s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .chat-container {
+                height: 75vh;
+            }
+            
+            .message {
+                max-width: 90%;
+            }
+            
+            .logo {
+                font-size: 28px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 24px;
+            }
+            
+            .chat-container {
+                height: 80vh;
+            }
+            
+            .chat-messages {
+                padding: 15px;
+            }
+            
+            .message {
+                padding: 15px;
+            }
+            
+            .chat-input-container {
+                padding: 15px;
+            }
+            
+            .chat-input {
+                padding: 14px;
+            }
+            
+            .send-button {
+                width: 45px;
+                height: 45px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Premium Header -->
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">S</div>
+            StandardsGPT
+        </div>
+    </header>
+
+    <!-- Chat Container -->
+    <div class="chat-container" id="chatContainer">
+        <div class="chat-messages" id="chatMessages">
+            <div class="message ai-message">
+                <div class="message-header">
+                    <div class="ai-icon">AI</div>
+                    StandardsGPT
+                </div>
+                <div class="message-content">
+                    Hello! I'm your premium Gym AI Assistant. How can I help you with your fitness goals today? Whether it's workout plans, nutrition advice, or technique guidance, I'm here to help!
+                </div>
+            </div>
+        </div>
+        <div class="typing-indicator" id="typingIndicator" style="display: none;">
+            StandardsGPT is typing<span></span><span></span><span></span>
+        </div>
+        <div class="chat-input-container">
+            <input type="text" class="chat-input" id="userInput" placeholder="Message StandardsGPT..." autofocus>
+            <button class="send-button" id="sendButton">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatMessages = document.getElementById('chatMessages');
+            const userInput = document.getElementById('userInput');
+            const sendButton = document.getElementById('sendButton');
+            const typingIndicator = document.getElementById('typingIndicator');
+            const chatContainer = document.getElementById('chatContainer');
+            
+            // Sample responses for demonstration
+            const responses = [
+                "For muscle building, focus on compound exercises like squats, deadlifts, and bench presses. Aim for 3-4 sets of 8-12 reps with progressive overload.",
+                "The ideal protein intake is 1.6-2.2g per kg of body weight. Good sources include chicken, fish, eggs, and plant-based options like tofu and lentils.",
+                "I recommend a push-pull-legs split: Day 1: Chest & Triceps, Day 2: Back & Biceps, Day 3: Legs & Shoulders, Day 4: Rest, then repeat.",
+                "To improve your squat form: 1) Keep your chest up, 2) Push through your heels, 3) Maintain a neutral spine, and 4) Descend until your thighs are parallel to the floor.",
+                "For weight loss, combine strength training 3-4 times weekly with 150 minutes of moderate cardio. Maintain a calorie deficit of 300-500 calories daily."
+            ];
+            
+            function addMessage(content, isUser = false) {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message');
+                messageDiv.classList.add(isUser ? 'user-message' : 'ai-message');
+                
+                const header = document.createElement('div');
+                header.classList.add('message-header');
+                
+                const icon = document.createElement('div');
+                icon.classList.add(isUser ? 'user-icon' : 'ai-icon');
+                icon.textContent = isUser ? 'U' : 'AI';
+                
+                const sender = document.createElement('div');
+                sender.textContent = isUser ? 'You' : 'StandardsGPT';
+                
+                header.appendChild(icon);
+                header.appendChild(sender);
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.classList.add('message-content');
+                contentDiv.textContent = content;
+                
+                messageDiv.appendChild(header);
+                messageDiv.appendChild(contentDiv);
+                
+                chatMessages.appendChild(messageDiv);
+                
+                // Calculate required height based on content
+                const contentHeight = messageDiv.offsetHeight;
+                const currentHeight = chatContainer.offsetHeight;
+                const maxHeight = window.innerHeight * 0.8; // 80% of viewport height
+                
+                // Adjust container height if needed, but not exceeding maxHeight
+                if (contentHeight + 100 > currentHeight) {
+                    const newHeight = Math.min(contentHeight + 100, maxHeight);
+                    chatContainer.style.height = newHeight + 'px';
+                }
+                
+                messageDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            }
+            
+            function simulateResponse(userMessage) {
+                // Show typing indicator
+                typingIndicator.style.display = 'flex';
+                
+                // Hide typing indicator after delay
+                setTimeout(() => {
+                    typingIndicator.style.display = 'none';
+                    
+                    // Generate response
+                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                    addMessage(randomResponse, false);
+                }, 1500);
+            }
+            
+            sendButton.addEventListener('click', sendMessage);
+            userInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+            
+            function sendMessage() {
+                const message = userInput.value.trim();
+                if (message) {
+                    addMessage(message, true);
+                    userInput.value = '';
+                    simulateResponse(message);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

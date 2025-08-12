@@ -3,21 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StandardsGPT - Gym AI Assistant</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <title>StandardsGPT - AI Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         :root {
-            --primary-light: #e6f7ff;
-            --primary: #2d9cdb;
-            --primary-dark: #1a75bb;
-            --text-primary: #2d3748;
-            --text-secondary: #4a5568;
+            --primary: #ffd700;
+            --primary-dark: #ff8c00;
+            --primary-light: #ffeb99;
+            --space-dark: #0a0e23;
+            --space-darker: #050711;
+            --text-primary: #ffffff;
+            --text-secondary: #b8c4d9;
             --border-radius: 16px;
-            --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 10px 15px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 20px 25px rgba(0, 0, 0, 0.15);
-            --glass-bg: rgba(255, 255, 255, 0.85);
             --transition: all 0.3s ease;
         }
 
@@ -28,17 +26,100 @@
         }
 
         body {
-            font-family: 'Open Sans', sans-serif;
-            background: linear-gradient(135deg, var(--primary-light), #ffffff);
+            font-family: 'Montserrat', sans-serif;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             color: var(--text-primary);
+            background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+            overflow-x: hidden;
+            position: relative;
             padding: 20px;
-            background-attachment: fixed;
         }
 
-        /* Premium Header */
+        /* Three.js Canvas */
+        #starfield-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        #starfield-container canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Shooting Stars */
+        /* Shooting Stars */
+        .shooting-stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+        
+        .shooting-star {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.7));
+            animation: shooting var(--duration, 3s) linear infinite;
+            animation-delay: var(--delay, 0s);
+            opacity: 0;
+        }
+        
+        .shooting-star::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 100px;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0), #fff, rgba(255, 255, 255, 0));
+        }
+        
+        /* Generate multiple shooting stars with different properties */
+        .shooting-star:nth-child(1) { --size: 2px; --duration: 3s; --delay: 0s; --start-x: 10%; --start-y: 15%; }
+        .shooting-star:nth-child(2) { --size: 1px; --duration: 4s; --delay: 2s; --start-x: 20%; --start-y: 30%; }
+        .shooting-star:nth-child(3) { --size: 1.5px; --duration: 5s; --delay: 4s; --start-x: 30%; --start-y: 50%; }
+        .shooting-star:nth-child(4) { --size: 1px; --duration: 3.5s; --delay: 1s; --start-x: 40%; --start-y: 70%; }
+        .shooting-star:nth-child(5) { --size: 2px; --duration: 4.5s; --delay: 3s; --start-x: 50%; --start-y: 25%; }
+        .shooting-star:nth-child(6) { --size: 1px; --duration: 6s; --delay: 5s; --start-x: 60%; --start-y: 60%; }
+        
+        @keyframes shooting {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 0;
+                width: 0;
+            }
+            10% {
+                opacity: 1;
+                width: var(--size, 2px);
+                height: var(--size, 2px);
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translate(100vw, 100vh) scale(0);
+                opacity: 0;
+                width: var(--size, 2px);
+                height: var(--size, 2px);
+            }
+        }
+        
+        /* Shooting stars will be added by JavaScript */
+
+        /* Header with Sun-like Logo */
         .header {
             max-width: 900px;
             width: 100%;
@@ -46,39 +127,56 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px 0;
+            padding: 30px 0;
             position: relative;
+            z-index: 10;
         }
 
         .logo {
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'Orbitron', sans-serif;
             font-weight: 700;
-            font-size: 32px;
-            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -0.5px;
+            font-size: 2.5rem;
+            color: var(--primary);
+            text-shadow: 0 0 3px var(--primary), 
+                         0 0 5px rgba(255, 215, 0, 0.5);
+            letter-spacing: 2px;
             display: flex;
             align-items: center;
             text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .logo:hover {
+            text-shadow: 0 0 5px var(--primary),
+                        0 0 10px rgba(255, 215, 0, 0.7);
+            transform: scale(1.01);
         }
 
         .logo-icon {
-            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-            color: white;
             width: 42px;
             height: 42px;
-            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin-right: 12px;
+        }
+        
+        .logo-icon svg {
+            width: 100%;
+            height: 100%;
+            color: var(--primary);
+        }
+        
+        .logo-text {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             font-weight: 700;
-            box-shadow: var(--shadow-sm);
         }
 
-        /* Premium Chat Container */
+        /* Space-themed Chat Container */
         .chat-container {
             max-width: 700px;
             width: 90%;
@@ -86,13 +184,14 @@
             margin: 0 auto;
             display: flex;
             flex-direction: column;
-            background: var(--glass-bg);
+            background: rgba(11, 13, 30, 0.75);
             border-radius: var(--border-radius);
-            box-shadow: var(--shadow-lg);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
             overflow: hidden;
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 215, 0, 0.1);
+            position: relative;
+            z-index: 5;
         }
 
         .chat-messages {
@@ -107,12 +206,14 @@
 
         .message {
             max-width: 80%;
-            padding: 18px;
-            border-radius: 18px;
+            padding: 16px 20px;
+            border-radius: 12px;
             line-height: 1.6;
             animation: fadeIn 0.4s ease-out;
             position: relative;
-            box-shadow: var(--shadow-sm);
+            margin: 8px 16px;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
         }
 
         @keyframes fadeIn {
@@ -121,19 +222,31 @@
         }
 
         .user-message {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
+            background: linear-gradient(135deg, rgba(0, 102, 204, 0.2), rgba(0, 153, 255, 0.3));
+            color: #e6f7ff;
             align-self: flex-end;
+            border: 1px solid rgba(0, 153, 255, 0.2);
             border-bottom-right-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 153, 255, 0.2);
+        }
+        
+        .user-message:hover {
+            box-shadow: 0 0 15px rgba(0, 153, 255, 0.4);
+            transform: translateY(-1px);
         }
 
         .ai-message {
-            background: white;
+            background: rgba(30, 30, 70, 0.5);
             color: var(--text-primary);
             align-self: flex-start;
             border-bottom-left-radius: 5px;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(255, 215, 0, 0.1);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.1);
+        }
+        
+        .ai-message:hover {
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+            transform: translateY(-1px);
         }
 
         .message-header {
@@ -148,13 +261,13 @@
         .ai-icon {
             width: 28px;
             height: 28px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            background: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             margin-right: 10px;
-            color: white;
+            color: var(--primary);
             font-size: 14px;
         }
 
@@ -179,8 +292,11 @@
         .chat-input-container {
             display: flex;
             padding: 20px;
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
-            background: white;
+            border-top: 1px solid rgba(255, 215, 0, 0.1);
+            background: rgba(11, 13, 30, 0.9);
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 5;
         }
 
         .chat-input {
@@ -201,27 +317,44 @@
 
         .send-button {
             background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
+            color: #0a0e23;
             border: none;
+            border-radius: 50%;
             width: 50px;
             height: 50px;
-            border-radius: 50%;
-            margin-left: 15px;
+            margin-left: 12px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: var(--transition);
-            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .send-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
         }
 
         .send-button:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.5);
         }
-
+        
+        .send-button:hover::before {
+            left: 100%;
+        }
+        
         .send-button:active {
-            transform: translateY(0);
+            transform: translateY(0) scale(0.98);
         }
 
         .typing-indicator {
@@ -306,11 +439,22 @@
     </style>
 </head>
 <body>
+    <!-- Three.js Starfield -->
+    <div id="starfield-container"></div>
+
     <!-- Premium Header -->
     <header class="header">
         <div class="logo">
-            <div class="logo-icon">S</div>
-            StandardsGPT
+            <div class="logo-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6.5 6H4C3.44772 6 3 6.44772 3 7V17C3 17.5523 3.44772 18 4 18H6.5C7.05228 18 7.5 17.5523 7.5 17V7C7.5 6.44772 7.05228 6 6.5 6Z" fill="currentColor"/>
+                    <path d="M20 6H17.5C16.9477 6 16.5 6.44772 16.5 7V17C16.5 17.5523 16.9477 18 17.5 18H20C20.5523 18 21 17.5523 21 17V7C21 6.44772 20.5523 6 20 6Z" fill="currentColor"/>
+                    <path d="M9.5 10H14.5V14H9.5V10Z" fill="currentColor"/>
+                    <path d="M7.5 10H3V14H7.5V10Z" fill="currentColor"/>
+                    <path d="M21 10H16.5V14H21V10Z" fill="currentColor"/>
+                </svg>
+            </div>
+            <span class="logo-text">StandardsGPT</span>
         </div>
     </header>
 
@@ -518,5 +662,147 @@
         }
     </script>
 
+    <div class="shooting-stars"></div>
+
+    <script>
+        // Generate shooting stars with random properties
+        document.addEventListener('DOMContentLoaded', function() {
+            const shootingStars = document.querySelector('.shooting-stars');
+            const style = document.createElement('style');
+            document.head.appendChild(style);
+            
+            let starsCss = '';
+            const starCount = 15; // Total number of shooting stars
+            
+            for (let i = 1; i <= starCount; i++) {
+                const size = (Math.random() * 1.5 + 0.5).toFixed(1);
+                const duration = (Math.random() * 4 + 2).toFixed(1);
+                const delay = (Math.random() * 15).toFixed(1);
+                const startX = (Math.random() * 100).toFixed(0);
+                const startY = (Math.random() * 100).toFixed(0);
+                
+                // Create star element
+                const star = document.createElement('div');
+                star.className = 'shooting-star';
+                star.style.setProperty('--size', `${size}px`);
+                star.style.setProperty('--duration', `${duration}s`);
+                star.style.setProperty('--delay', `${delay}s`);
+                star.style.setProperty('--start-x', `${startX}%`);
+                star.style.setProperty('--start-y', `${startY}%`);
+                
+                shootingStars.appendChild(star);
+                
+                // Add CSS for this star
+                starsCss += `
+                    .shooting-star:nth-child(${i}) { 
+                        --size: ${size}px; 
+                        --duration: ${duration}s; 
+                        --delay: ${delay}s;
+                        --start-x: ${startX}%;
+                        --start-y: ${startY}%;
+                    }
+                `;
+            }
+            
+            style.textContent = starsCss;
+        });
+    </script>
+    <script src="script.js"></script>
+    <script>
+        // Initialize Three.js Starfield
+        document.addEventListener('DOMContentLoaded', function() {
+            // Scene setup
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.getElementById('starfield-container').appendChild(renderer.domElement);
+
+            // Create stars
+            const starsGeometry = new THREE.BufferGeometry();
+            const starsMaterial = new THREE.PointsMaterial({
+                color: 0xffffff,
+                size: 0.1,
+                transparent: true,
+                opacity: 0.8,
+                sizeAttenuation: true,
+                blending: THREE.AdditiveBlending
+            });
+
+            const starsCount = 5000;
+            const positions = new Float32Array(starsCount * 3);
+            const colors = new Float32Array(starsCount * 3);
+            const sizes = new Float32Array(starsCount);
+
+            // Create random star positions and colors
+            for (let i = 0; i < starsCount; i++) {
+                // Position stars in a sphere
+                const radius = 1000;
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.acos(2 * Math.random() - 1);
+                
+                const x = radius * Math.sin(phi) * Math.cos(theta);
+                const y = radius * Math.sin(phi) * Math.sin(theta);
+                const z = radius * Math.cos(phi);
+                
+                positions[i * 3] = x;
+                positions[i * 3 + 1] = y;
+                positions[i * 3 + 2] = z;
+                
+                // Random star color (white to blueish)
+                const color = new THREE.Color();
+                color.setHSL(0.6, 0.2, 0.5 + Math.random() * 0.5);
+                colors[i * 3] = color.r;
+                colors[i * 3 + 1] = color.g;
+                colors[i * 3 + 2] = color.b;
+                
+                // Random size
+                sizes[i] = Math.random() * 2 + 0.5;
+            }
+
+            starsGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            starsGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+            starsGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+            const stars = new THREE.Points(starsGeometry, starsMaterial);
+            scene.add(stars);
+
+            // Camera position
+            camera.position.z = 1;
+            camera.rotation.x = Math.PI / 2;
+
+            // Animation
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                // Rotate stars for a more dynamic effect
+                stars.rotation.y += 0.0001;
+                
+                // Move stars toward camera (simple parallax effect)
+                const positions = starsGeometry.attributes.position.array;
+                for (let i = 0; i < positions.length; i += 3) {
+                    positions[i + 2] -= 0.5; // Move stars toward camera
+                    
+                    // Reset stars that are too close
+                    if (positions[i + 2] < -1000) {
+                        positions[i + 2] = 1000;
+                    }
+                }
+                starsGeometry.attributes.position.needsUpdate = true;
+                
+                renderer.render(scene, camera);
+            }
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+            // Start animation
+            animate();
+        });
+    </script>
 </body>
 </html>

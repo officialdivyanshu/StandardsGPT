@@ -342,93 +342,181 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const chatMessages = document.getElementById('chatMessages');
-            const userInput = document.getElementById('userInput');
-            const sendButton = document.getElementById('sendButton');
-            const typingIndicator = document.getElementById('typingIndicator');
-            const chatContainer = document.getElementById('chatContainer');
-            
-            // Sample responses for demonstration
-            const responses = [
-                "For muscle building, focus on compound exercises like squats, deadlifts, and bench presses. Aim for 3-4 sets of 8-12 reps with progressive overload.",
-                "The ideal protein intake is 1.6-2.2g per kg of body weight. Good sources include chicken, fish, eggs, and plant-based options like tofu and lentils.",
-                "I recommend a push-pull-legs split: Day 1: Chest & Triceps, Day 2: Back & Biceps, Day 3: Legs & Shoulders, Day 4: Rest, then repeat.",
-                "To improve your squat form: 1) Keep your chest up, 2) Push through your heels, 3) Maintain a neutral spine, and 4) Descend until your thighs are parallel to the floor.",
-                "For weight loss, combine strength training 3-4 times weekly with 150 minutes of moderate cardio. Maintain a calorie deficit of 300-500 calories daily."
-            ];
-            
-            function addMessage(content, isUser = false) {
-                const messageDiv = document.createElement('div');
-                messageDiv.classList.add('message');
-                messageDiv.classList.add(isUser ? 'user-message' : 'ai-message');
-                
-                const header = document.createElement('div');
-                header.classList.add('message-header');
-                
-                const icon = document.createElement('div');
-                icon.classList.add(isUser ? 'user-icon' : 'ai-icon');
-                icon.textContent = isUser ? 'U' : 'AI';
-                
-                const sender = document.createElement('div');
-                sender.textContent = isUser ? 'You' : 'StandardsGPT';
-                
-                header.appendChild(icon);
-                header.appendChild(sender);
-                
-                const contentDiv = document.createElement('div');
-                contentDiv.classList.add('message-content');
-                contentDiv.textContent = content;
-                
-                messageDiv.appendChild(header);
-                messageDiv.appendChild(contentDiv);
-                
-                chatMessages.appendChild(messageDiv);
-                
-                // Calculate required height based on content
-                const contentHeight = messageDiv.offsetHeight;
-                const currentHeight = chatContainer.offsetHeight;
-                const maxHeight = window.innerHeight * 0.8; // 80% of viewport height
-                
-                // Adjust container height if needed, but not exceeding maxHeight
-                if (contentHeight + 100 > currentHeight) {
-                    const newHeight = Math.min(contentHeight + 100, maxHeight);
-                    chatContainer.style.height = newHeight + 'px';
-                }
-                
-                messageDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
-            }
-            
-            function simulateResponse(userMessage) {
-                // Show typing indicator
-                typingIndicator.style.display = 'flex';
-                
-                // Hide typing indicator after delay
-                setTimeout(() => {
-                    typingIndicator.style.display = 'none';
-                    
-                    // Generate response
-                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-                    addMessage(randomResponse, false);
-                }, 1500);
-            }
-            
-            sendButton.addEventListener('click', sendMessage);
-            userInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    sendMessage();
-                }
-            });
-            
-            function sendMessage() {
-                const message = userInput.value.trim();
-                if (message) {
-                    addMessage(message, true);
-                    userInput.value = '';
-                    simulateResponse(message);
-                }
+        const sendButton = document.getElementById('sendButton');
+        const userInput = document.getElementById('userInput');
+        const chatMessages = document.getElementById('chatMessages');
+
+        // Handle send button click
+        sendButton.addEventListener('click', sendMessage);
+        
+        // Handle Enter key press
+        userInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
             }
         });
+
+        function sendMessage() {
+            const msg = userInput.value.trim();
+            if (!msg) return;
+
+            // Add user message to chat
+            addMessage('user', msg);
+            userInput.value = ''; // Clear input field
+
+            // Show typing indicator
+            const typingIndicator = document.createElement('div');
+            typingIndicator.className = 'message bot-message';
+            typingIndicator.id = 'typing-indicator';
+            typingIndicator.innerHTML = '<div class="typing-indicator">AI is typing<span></span><span></span><span></span></div>';
+            chatMessages.appendChild(typingIndicator);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // Send message to backend
+            fetch("http://127.0.0.1:5000/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: msg })
+            })
+            .then(res => {
+                if (!res.ok) throw new Error('Network response was not ok');
+                return res.json();
+            })
+            .then(data => {
+                // Remove typing indicator
+                const indicator = document.getElementById('typing-indicator');
+                if (indicator) indicator.remove();
+                
+                // Add bot response to chat with typing effect
+                return addMessage('bot', data.reply, true);
+            })
+            .catch(err => {
+                console.error('Error:', err);
+                const indicator = document.getElementById('typing-indicator');
+                if (indicator) indicator.remove();
+                addMessage('bot', 'Sorry, I encountered an error. Please try again.');
+            });
+        }
+
+        function addMessage(sender, text, isTypingEffect = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            
+            // Create message content
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            
+            // Add sender name
+            const senderDiv = document.createElement('div');
+            senderDiv.className = 'message-sender';
+            senderDiv.textContent = sender === 'user' ? 'You' : 'AI Assistant';
+            
+            // Add message text container
+            const textDiv = document.createElement('div');
+            textDiv.className = 'message-text';
+            
+            // Assemble the message
+            messageContent.appendChild(senderDiv);
+            messageContent.appendChild(textDiv);
+            messageDiv.appendChild(messageContent);
+            chatMessages.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // If it's an AI message and we want typing effect
+            if (sender === 'bot' && isTypingEffect) {
+                return typeText(textDiv, text);
+            } else {
+                textDiv.textContent = text;
+                return Promise.resolve();
+            }
+        }
+        
+        function typeText(element, text) {
+            return new Promise(resolve => {
+                // Split text into lines based on bullet points and periods
+                const lines = [];
+                let currentLine = '';
+                let inBulletPoint = false;
+                
+                // Process the text to handle bullet points and periods
+                for (let i = 0; i < text.length; i++) {
+                    const char = text[i];
+                    const nextChar = text[i + 1] || '';
+                    
+                    // Check for bullet points
+                    if (char === '-' && (i === 0 || text[i - 1] === '\n')) {
+                        if (currentLine) lines.push(currentLine);
+                        currentLine = char;
+                        inBulletPoint = true;
+                        continue;
+                    }
+                    
+                    // Add character to current line
+                    currentLine += char;
+                    
+                    // Check for end of line (period followed by space or newline)
+                    if ((char === '.' || char === ':' || char === '!') && 
+                        (nextChar === ' ' || nextChar === '\n' || nextChar === '')) {
+                        lines.push(currentLine);
+                        currentLine = '';
+                        inBulletPoint = false;
+                    }
+                }
+                
+                // Add any remaining text
+                if (currentLine) {
+                    lines.push(currentLine);
+                }
+                
+                // Type out each line with appropriate delays
+                let currentLineIndex = 0;
+                let currentCharIndex = 0;
+                const lineDelay = 50; // ms between lines
+                const charDelay = 15; // ms between characters
+                
+                function typeNextLine() {
+                    if (currentLineIndex >= lines.length) {
+                        resolve();
+                        return;
+                    }
+                    
+                    const line = lines[currentLineIndex];
+                    
+                    // Add line break if not the first line
+                    if (currentLineIndex > 0) {
+                        element.appendChild(document.createElement('br'));
+                    }
+                    
+                    // Create a span for this line
+                    const lineSpan = document.createElement('span');
+                    element.appendChild(lineSpan);
+                    
+                    // Type out the line
+                    function typeNextChar() {
+                        if (currentCharIndex < line.length) {
+                            lineSpan.textContent += line[currentCharIndex];
+                            currentCharIndex++;
+                            chatMessages.scrollTop = chatMessages.scrollHeight;
+                            setTimeout(typeNextChar, charDelay);
+                        } else {
+                            // Move to next line
+                            currentLineIndex++;
+                            currentCharIndex = 0;
+                            setTimeout(typeNextLine, lineDelay);
+                        }
+                    }
+                    
+                    // Start typing the line
+                    typeNextChar();
+                }
+                
+                // Start the typing effect
+                typeNextLine();
+            });
+        }
     </script>
+
 </body>
 </html>

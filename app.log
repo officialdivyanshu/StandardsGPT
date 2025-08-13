@@ -1,0 +1,292 @@
+2025-08-12 23:08:37,103 - server - INFO - OpenAI API key loaded successfully
+2025-08-12 23:08:37,118 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-12 23:08:37,118 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-12 23:13:00,712 - server - INFO - Received request with data: b'{"message": "test"}'
+2025-08-12 23:13:00,713 - server - INFO - Processing message: test
+2025-08-12 23:13:00,713 - server - INFO - Calling OpenAI API...
+2025-08-12 23:13:00,713 - server - ERROR - Unexpected error in chat endpoint
+Traceback (most recent call last):
+  File "C:\Users\Divyanshu Shekhar\OneDrive\Desktop\project based for github\StandardsGPT\server.py", line 87, in chat
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+    ...<5 lines>...
+        max_tokens=500
+    )
+  File "C:\Users\Divyanshu Shekhar\AppData\Local\Programs\Python\Python313\Lib\site-packages\openai\lib\_old_api.py", line 39, in __call__
+    raise APIRemovedInV1(symbol=self._symbol)
+openai.lib._old_api.APIRemovedInV1: 
+
+You tried to access openai.ChatCompletion, but this is no longer supported in openai>=1.0.0 - see the README at https://github.com/openai/openai-python for the API.
+
+You can run `openai migrate` to automatically upgrade your codebase to use the 1.0.0 interface. 
+
+Alternatively, you can pin your installation to the old version, e.g. `pip install openai==0.28`
+
+A detailed migration guide is available here: https://github.com/openai/openai-python/discussions/742
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Divyanshu Shekhar\OneDrive\Desktop\project based for github\StandardsGPT\server.py", line 103, in chat
+    except openai.error.AuthenticationError as e:
+           ^^^^^^^^^^^^
+AttributeError: module 'openai' has no attribute 'error'
+2025-08-12 23:13:00,716 - werkzeug - INFO - 127.0.0.1 - - [12/Aug/2025 23:13:00] "[35m[1mPOST /chat HTTP/1.1[0m" 500 -
+2025-08-12 23:13:30,948 - __main__ - INFO - OpenAI API key loaded successfully
+2025-08-12 23:13:30,964 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-12 23:13:30,964 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-12 23:13:30,972 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2025-08-12 23:13:31,470 - __main__ - INFO - OpenAI API key loaded successfully
+2025-08-12 23:13:31,478 - werkzeug - WARNING -  * Debugger is active!
+2025-08-12 23:13:31,481 - werkzeug - INFO -  * Debugger PIN: 117-432-010
+2025-08-12 23:13:42,605 - __main__ - INFO - Received request with data: b'{"message": "test"}'
+2025-08-12 23:13:42,606 - __main__ - INFO - Processing message: test
+2025-08-12 23:13:42,606 - __main__ - INFO - Calling OpenAI API...
+2025-08-12 23:13:42,606 - __main__ - ERROR - Unexpected error in chat endpoint
+Traceback (most recent call last):
+  File "C:\Users\Divyanshu Shekhar\OneDrive\Desktop\project based for github\StandardsGPT\server.py", line 87, in chat
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+    ...<5 lines>...
+        max_tokens=500
+    )
+  File "C:\Users\Divyanshu Shekhar\AppData\Local\Programs\Python\Python313\Lib\site-packages\openai\lib\_old_api.py", line 39, in __call__
+    raise APIRemovedInV1(symbol=self._symbol)
+openai.lib._old_api.APIRemovedInV1: 
+
+You tried to access openai.ChatCompletion, but this is no longer supported in openai>=1.0.0 - see the README at https://github.com/openai/openai-python for the API.
+
+You can run `openai migrate` to automatically upgrade your codebase to use the 1.0.0 interface. 
+
+Alternatively, you can pin your installation to the old version, e.g. `pip install openai==0.28`
+
+A detailed migration guide is available here: https://github.com/openai/openai-python/discussions/742
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Divyanshu Shekhar\OneDrive\Desktop\project based for github\StandardsGPT\server.py", line 103, in chat
+    except openai.error.AuthenticationError as e:
+           ^^^^^^^^^^^^
+AttributeError: module 'openai' has no attribute 'error'
+2025-08-12 23:13:42,610 - werkzeug - INFO - 127.0.0.1 - - [12/Aug/2025 23:13:42] "[35m[1mPOST /chat HTTP/1.1[0m" 500 -
+2025-08-12 23:14:53,165 - werkzeug - INFO -  * Detected change in 'C:\\Users\\Divyanshu Shekhar\\OneDrive\\Desktop\\project based for github\\StandardsGPT\\server.py', reloading
+2025-08-12 23:14:53,173 - werkzeug - INFO -  * Detected change in 'C:\\Users\\Divyanshu Shekhar\\OneDrive\\Desktop\\project based for github\\StandardsGPT\\server.py', reloading
+2025-08-12 23:14:53,772 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2025-08-12 23:14:54,601 - __main__ - INFO - OpenAI client initialized successfully
+2025-08-12 23:14:54,612 - werkzeug - WARNING -  * Debugger is active!
+2025-08-12 23:14:54,614 - werkzeug - INFO -  * Debugger PIN: 117-432-010
+2025-08-12 23:14:55,318 - werkzeug - INFO -  * Detected change in 'C:\\Users\\Divyanshu Shekhar\\OneDrive\\Desktop\\project based for github\\StandardsGPT\\server.py', reloading
+2025-08-12 23:14:55,319 - werkzeug - INFO -  * Detected change in 'C:\\Users\\Divyanshu Shekhar\\OneDrive\\Desktop\\project based for github\\StandardsGPT\\server.py', reloading
+2025-08-12 23:14:55,735 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2025-08-12 23:14:56,580 - __main__ - INFO - OpenAI client initialized successfully
+2025-08-12 23:14:56,589 - werkzeug - WARNING -  * Debugger is active!
+2025-08-12 23:14:56,591 - werkzeug - INFO -  * Debugger PIN: 117-432-010
+2025-08-12 23:15:30,987 - __main__ - INFO - OpenAI client initialized successfully
+2025-08-12 23:15:31,012 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-12 23:15:31,013 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-12 23:15:31,021 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2025-08-12 23:15:31,833 - __main__ - INFO - OpenAI client initialized successfully
+2025-08-12 23:15:31,844 - werkzeug - WARNING -  * Debugger is active!
+2025-08-12 23:15:31,846 - werkzeug - INFO -  * Debugger PIN: 117-432-010
+2025-08-12 23:15:42,213 - __main__ - INFO - Received request with data: b'{"message": "Hello"}'
+2025-08-12 23:15:42,213 - __main__ - INFO - Processing message: Hello
+2025-08-12 23:15:42,213 - __main__ - INFO - Calling OpenAI API...
+2025-08-12 23:15:43,488 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2025-08-12 23:15:43,488 - openai._base_client - INFO - Retrying request to /chat/completions in 0.409807 seconds
+2025-08-12 23:15:45,526 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2025-08-12 23:15:45,528 - openai._base_client - INFO - Retrying request to /chat/completions in 0.971886 seconds
+2025-08-12 23:15:47,153 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2025-08-12 23:15:47,156 - __main__ - ERROR - Unexpected error in chat endpoint
+Traceback (most recent call last):
+  File "C:\Users\Divyanshu Shekhar\OneDrive\Desktop\project based for github\StandardsGPT\server.py", line 91, in chat
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+    ...<5 lines>...
+        max_tokens=500
+    )
+  File "C:\Users\Divyanshu Shekhar\AppData\Local\Programs\Python\Python313\Lib\site-packages\openai\_utils\_utils.py", line 287, in wrapper
+    return func(*args, **kwargs)
+  File "C:\Users\Divyanshu Shekhar\AppData\Local\Programs\Python\Python313\Lib\site-packages\openai\resources\chat\completions\completions.py", line 1150, in create
+    return self._post(
+           ~~~~~~~~~~^
+        "/chat/completions",
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<46 lines>...
+        stream_cls=Stream[ChatCompletionChunk],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Divyanshu Shekhar\AppData\Local\Programs\Python\Python313\Lib\site-packages\openai\_base_client.py", line 1259, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+                           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Divyanshu Shekhar\AppData\Local\Programs\Python\Python313\Lib\site-packages\openai\_base_client.py", line 1047, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.RateLimitError: Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Divyanshu Shekhar\OneDrive\Desktop\project based for github\StandardsGPT\server.py", line 107, in chat
+    except openai.error.AuthenticationError as e:
+           ^^^^^^
+NameError: name 'openai' is not defined. Did you mean: 'OpenAI'?
+2025-08-12 23:15:47,164 - werkzeug - INFO - 127.0.0.1 - - [12/Aug/2025 23:15:47] "[35m[1mPOST /chat HTTP/1.1[0m" 500 -
+2025-08-12 23:16:05,116 - werkzeug - INFO -  * Detected change in 'C:\\Users\\Divyanshu Shekhar\\OneDrive\\Desktop\\project based for github\\StandardsGPT\\server.py', reloading
+2025-08-12 23:16:05,117 - werkzeug - INFO -  * Detected change in 'C:\\Users\\Divyanshu Shekhar\\OneDrive\\Desktop\\project based for github\\StandardsGPT\\server.py', reloading
+2025-08-12 23:16:05,121 - werkzeug - INFO -  * Detected change in 'C:\\Users\\Divyanshu Shekhar\\OneDrive\\Desktop\\project based for github\\StandardsGPT\\server.py', reloading
+2025-08-12 23:16:06,095 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2025-08-12 23:16:06,909 - __main__ - INFO - OpenAI client initialized successfully
+2025-08-12 23:16:08,318 - httpx - INFO - HTTP Request: GET https://api.openai.com/v1/models "HTTP/1.1 200 OK"
+2025-08-12 23:16:08,323 - __main__ - INFO - Successfully connected to OpenAI API
+2025-08-12 23:16:08,333 - werkzeug - WARNING -  * Debugger is active!
+2025-08-12 23:16:08,336 - werkzeug - INFO -  * Debugger PIN: 117-432-010
+2025-08-12 23:16:16,572 - __main__ - INFO - OpenAI client initialized successfully
+2025-08-12 23:16:17,836 - httpx - INFO - HTTP Request: GET https://api.openai.com/v1/models "HTTP/1.1 200 OK"
+2025-08-12 23:16:17,844 - __main__ - INFO - Successfully connected to OpenAI API
+2025-08-12 23:16:17,868 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.29.111:5000
+2025-08-12 23:16:17,868 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-12 23:16:17,876 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2025-08-12 23:16:18,970 - __main__ - INFO - OpenAI client initialized successfully
+2025-08-12 23:16:20,098 - httpx - INFO - HTTP Request: GET https://api.openai.com/v1/models "HTTP/1.1 200 OK"
+2025-08-12 23:16:20,196 - __main__ - INFO - Successfully connected to OpenAI API
+2025-08-12 23:16:20,212 - werkzeug - WARNING -  * Debugger is active!
+2025-08-12 23:16:20,215 - werkzeug - INFO -  * Debugger PIN: 117-432-010
+2025-08-13 21:56:14,864 - werkzeug - INFO -  * Detected change in 'C:\\Users\\Divyanshu Shekhar\\OneDrive\\Desktop\\project based for github\\StandardsGPT\\server.py', reloading
+2025-08-13 21:56:18,106 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2025-08-13 21:56:20,916 - __main__ - INFO - OpenAI client initialized successfully
+2025-08-13 21:56:22,717 - httpx - INFO - HTTP Request: GET https://api.openai.com/v1/models "HTTP/1.1 200 OK"
+2025-08-13 21:56:22,731 - __main__ - INFO - Successfully connected to OpenAI API
+2025-08-13 21:56:22,773 - werkzeug - WARNING -  * Debugger is active!
+2025-08-13 21:56:22,783 - werkzeug - INFO -  * Debugger PIN: 117-432-010
+2025-08-13 22:19:34,609 - werkzeug - INFO -  * Detected change in 'C:\\Users\\Divyanshu Shekhar\\OneDrive\\Desktop\\project based for github\\StandardsGPT\\server.py', reloading
+2025-08-13 22:19:34,650 - werkzeug - INFO -  * Detected change in 'C:\\Users\\Divyanshu Shekhar\\OneDrive\\Desktop\\project based for github\\StandardsGPT\\server.py', reloading
+2025-08-13 22:22:30,802 - __main__ - ERROR - OpenRouter API key not found in environment variables
+2025-08-13 22:24:27,318 - __main__ - INFO - Starting StandardsGPT server with OpenRouter integration
+2025-08-13 22:24:27,319 - __main__ - INFO - Using model: openai/gpt-3.5-turbo
+2025-08-13 22:24:27,364 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.29.111:5000
+2025-08-13 22:24:27,365 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-13 22:24:27,374 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2025-08-13 22:24:28,100 - __main__ - INFO - Starting StandardsGPT server with OpenRouter integration
+2025-08-13 22:24:28,101 - __main__ - INFO - Using model: openai/gpt-3.5-turbo
+2025-08-13 22:24:28,117 - werkzeug - WARNING -  * Debugger is active!
+2025-08-13 22:24:28,122 - werkzeug - INFO -  * Debugger PIN: 117-432-010
+2025-08-13 22:24:50,433 - __main__ - INFO - Received request with data: b'{"message": "Hello, can you hear me?"}'
+2025-08-13 22:24:50,434 - __main__ - INFO - Processing message: Hello, can you hear me?
+2025-08-13 22:24:50,435 - __main__ - INFO - Calling OpenRouter API...
+2025-08-13 22:24:51,953 - __main__ - INFO - Successfully got response from OpenRouter
+2025-08-13 22:24:51,956 - werkzeug - INFO - 127.0.0.1 - - [13/Aug/2025 22:24:51] "POST /chat HTTP/1.1" 200 -
+2025-08-13 22:27:59,701 - werkzeug - INFO -  * Detected change in 'C:\\Users\\Divyanshu Shekhar\\OneDrive\\Desktop\\project based for github\\StandardsGPT\\server.py', reloading
+2025-08-13 22:27:59,702 - werkzeug - INFO -  * Detected change in 'C:\\Users\\Divyanshu Shekhar\\OneDrive\\Desktop\\project based for github\\StandardsGPT\\server.py', reloading
+2025-08-13 22:27:59,741 - werkzeug - INFO -  * Detected change in 'C:\\Users\\Divyanshu Shekhar\\OneDrive\\Desktop\\project based for github\\StandardsGPT\\server.py', reloading
+2025-08-13 22:28:00,641 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2025-08-13 22:28:01,410 - __main__ - INFO - Starting StandardsGPT server with OpenRouter integration
+2025-08-13 22:28:01,413 - __main__ - INFO - Using model: openai/gpt-3.5-turbo
+2025-08-13 22:28:01,429 - werkzeug - WARNING -  * Debugger is active!
+2025-08-13 22:28:01,433 - werkzeug - INFO -  * Debugger PIN: 117-432-010
+2025-08-13 22:28:02,357 - werkzeug - INFO -  * Detected change in 'C:\\Users\\Divyanshu Shekhar\\OneDrive\\Desktop\\project based for github\\StandardsGPT\\server.py', reloading
+2025-08-13 22:28:02,510 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2025-08-13 22:28:03,356 - __main__ - INFO - Starting StandardsGPT server with OpenRouter integration
+2025-08-13 22:28:03,357 - __main__ - INFO - Using model: openai/gpt-3.5-turbo
+2025-08-13 22:28:03,374 - werkzeug - WARNING -  * Debugger is active!
+2025-08-13 22:28:03,379 - werkzeug - INFO -  * Debugger PIN: 117-432-010
+2025-08-13 22:28:11,874 - __main__ - INFO - Starting StandardsGPT server with OpenRouter integration
+2025-08-13 22:28:11,875 - __main__ - INFO - Using model: openai/gpt-3.5-turbo
+2025-08-13 22:28:11,910 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.29.111:5000
+2025-08-13 22:28:11,912 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-13 22:28:11,921 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2025-08-13 22:28:12,675 - __main__ - INFO - Starting StandardsGPT server with OpenRouter integration
+2025-08-13 22:28:12,676 - __main__ - INFO - Using model: openai/gpt-3.5-turbo
+2025-08-13 22:28:12,694 - werkzeug - WARNING -  * Debugger is active!
+2025-08-13 22:28:12,697 - werkzeug - INFO -  * Debugger PIN: 117-432-010
+2025-08-13 22:28:23,891 - __main__ - INFO - Received request with data: b'{"message": "Hello, testing the chat!"}'
+2025-08-13 22:28:23,892 - __main__ - INFO - Processing message: Hello, testing the chat!
+2025-08-13 22:28:23,892 - __main__ - INFO - Calling OpenRouter API...
+2025-08-13 22:28:25,573 - __main__ - INFO - Successfully got response from OpenRouter
+2025-08-13 22:28:25,575 - werkzeug - INFO - 127.0.0.1 - - [13/Aug/2025 22:28:25] "POST /chat HTTP/1.1" 200 -
+2025-08-13 22:30:26,651 - werkzeug - INFO -  * Detected change in 'C:\\Users\\Divyanshu Shekhar\\OneDrive\\Desktop\\project based for github\\StandardsGPT\\server.py', reloading
+2025-08-13 22:30:26,653 - werkzeug - INFO -  * Detected change in 'C:\\Users\\Divyanshu Shekhar\\OneDrive\\Desktop\\project based for github\\StandardsGPT\\server.py', reloading
+2025-08-13 22:30:26,693 - werkzeug - INFO -  * Detected change in 'C:\\Users\\Divyanshu Shekhar\\OneDrive\\Desktop\\project based for github\\StandardsGPT\\server.py', reloading
+2025-08-13 22:30:27,077 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2025-08-13 22:30:27,857 - __main__ - INFO - Starting StandardsGPT server with OpenRouter integration
+2025-08-13 22:30:27,858 - __main__ - INFO - Using model: openai/gpt-3.5-turbo
+2025-08-13 22:30:27,874 - werkzeug - WARNING -  * Debugger is active!
+2025-08-13 22:30:27,879 - werkzeug - INFO -  * Debugger PIN: 117-432-010
+2025-08-13 22:30:28,376 - werkzeug - INFO -  * Detected change in 'C:\\Users\\Divyanshu Shekhar\\OneDrive\\Desktop\\project based for github\\StandardsGPT\\server.py', reloading
+2025-08-13 22:30:28,378 - werkzeug - INFO -  * Detected change in 'C:\\Users\\Divyanshu Shekhar\\OneDrive\\Desktop\\project based for github\\StandardsGPT\\server.py', reloading
+2025-08-13 22:30:28,967 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2025-08-13 22:30:29,772 - __main__ - INFO - Starting StandardsGPT server with OpenRouter integration
+2025-08-13 22:30:29,773 - __main__ - INFO - Using model: openai/gpt-3.5-turbo
+2025-08-13 22:30:29,800 - werkzeug - WARNING -  * Debugger is active!
+2025-08-13 22:30:29,805 - werkzeug - INFO -  * Debugger PIN: 117-432-010
+2025-08-13 22:30:57,732 - __main__ - INFO - Starting StandardsGPT server with OpenRouter integration
+2025-08-13 22:30:57,733 - __main__ - INFO - Using model: openai/gpt-3.5-turbo
+2025-08-13 22:30:57,783 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.29.111:5000
+2025-08-13 22:30:57,784 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-13 22:30:57,793 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2025-08-13 22:30:58,593 - __main__ - INFO - Starting StandardsGPT server with OpenRouter integration
+2025-08-13 22:30:58,594 - __main__ - INFO - Using model: openai/gpt-3.5-turbo
+2025-08-13 22:30:58,612 - werkzeug - WARNING -  * Debugger is active!
+2025-08-13 22:30:58,616 - werkzeug - INFO -  * Debugger PIN: 117-432-010
+2025-08-13 22:31:22,725 - __main__ - INFO - Received request with data: b'{"message": "Hello, testing the chat!"}'
+2025-08-13 22:31:22,726 - __main__ - INFO - Processing message: Hello, testing the chat!
+2025-08-13 22:31:22,728 - __main__ - INFO - Calling OpenRouter API...
+2025-08-13 22:31:24,667 - __main__ - INFO - Successfully got response from OpenRouter
+2025-08-13 22:31:24,668 - werkzeug - INFO - 127.0.0.1 - - [13/Aug/2025 22:31:24] "POST /chat HTTP/1.1" 200 -
+2025-08-13 22:32:17,291 - werkzeug - INFO -  * Detected change in 'C:\\Users\\Divyanshu Shekhar\\OneDrive\\Desktop\\project based for github\\StandardsGPT\\server.py', reloading
+2025-08-13 22:32:17,330 - werkzeug - INFO -  * Detected change in 'C:\\Users\\Divyanshu Shekhar\\OneDrive\\Desktop\\project based for github\\StandardsGPT\\server.py', reloading
+2025-08-13 22:32:17,332 - werkzeug - INFO -  * Detected change in 'C:\\Users\\Divyanshu Shekhar\\OneDrive\\Desktop\\project based for github\\StandardsGPT\\server.py', reloading
+2025-08-13 22:32:17,857 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2025-08-13 22:32:18,576 - __main__ - INFO - Starting StandardsGPT server with OpenRouter integration
+2025-08-13 22:32:18,577 - __main__ - INFO - Using model: openai/gpt-3.5-turbo
+2025-08-13 22:32:18,598 - werkzeug - WARNING -  * Debugger is active!
+2025-08-13 22:32:18,602 - werkzeug - INFO -  * Debugger PIN: 117-432-010
+2025-08-13 22:32:19,201 - werkzeug - INFO -  * Detected change in 'C:\\Users\\Divyanshu Shekhar\\OneDrive\\Desktop\\project based for github\\StandardsGPT\\server.py', reloading
+2025-08-13 22:32:19,202 - werkzeug - INFO -  * Detected change in 'C:\\Users\\Divyanshu Shekhar\\OneDrive\\Desktop\\project based for github\\StandardsGPT\\server.py', reloading
+2025-08-13 22:32:19,685 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2025-08-13 22:32:20,489 - __main__ - INFO - Starting StandardsGPT server with OpenRouter integration
+2025-08-13 22:32:20,490 - __main__ - INFO - Using model: openai/gpt-3.5-turbo
+2025-08-13 22:32:20,510 - werkzeug - WARNING -  * Debugger is active!
+2025-08-13 22:32:20,514 - werkzeug - INFO -  * Debugger PIN: 117-432-010
+2025-08-13 22:32:56,991 - __main__ - INFO - Starting StandardsGPT server with OpenRouter integration
+2025-08-13 22:32:56,991 - __main__ - INFO - Using model: openai/gpt-3.5-turbo
+2025-08-13 22:32:57,026 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.29.111:5000
+2025-08-13 22:32:57,027 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-13 22:32:57,036 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2025-08-13 22:32:57,837 - __main__ - INFO - Starting StandardsGPT server with OpenRouter integration
+2025-08-13 22:32:57,838 - __main__ - INFO - Using model: openai/gpt-3.5-turbo
+2025-08-13 22:32:57,865 - werkzeug - WARNING -  * Debugger is active!
+2025-08-13 22:32:57,870 - werkzeug - INFO -  * Debugger PIN: 117-432-010
+2025-08-13 22:33:41,658 - werkzeug - INFO - 127.0.0.1 - - [13/Aug/2025 22:33:41] "GET / HTTP/1.1" 200 -
+2025-08-13 22:34:31,890 - werkzeug - INFO - 127.0.0.1 - - [13/Aug/2025 22:34:31] "OPTIONS /chat HTTP/1.1" 200 -
+2025-08-13 22:34:31,901 - __main__ - INFO - Received request with data: b'{"message":"hi"}'
+2025-08-13 22:34:31,909 - __main__ - INFO - Processing message: hi
+2025-08-13 22:34:31,911 - __main__ - INFO - Calling OpenRouter API...
+2025-08-13 22:34:33,278 - __main__ - INFO - Successfully got response from OpenRouter
+2025-08-13 22:34:33,291 - werkzeug - INFO - 127.0.0.1 - - [13/Aug/2025 22:34:33] "POST /chat HTTP/1.1" 200 -
+2025-08-13 22:34:42,209 - werkzeug - INFO - 127.0.0.1 - - [13/Aug/2025 22:34:42] "OPTIONS /chat HTTP/1.1" 200 -
+2025-08-13 22:34:42,282 - __main__ - INFO - Received request with data: b'{"message":"home workout"}'
+2025-08-13 22:34:42,319 - __main__ - INFO - Processing message: home workout
+2025-08-13 22:34:42,343 - __main__ - INFO - Calling OpenRouter API...
+2025-08-13 22:34:45,528 - __main__ - INFO - Successfully got response from OpenRouter
+2025-08-13 22:34:45,534 - werkzeug - INFO - 127.0.0.1 - - [13/Aug/2025 22:34:45] "POST /chat HTTP/1.1" 200 -

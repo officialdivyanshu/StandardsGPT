@@ -1,69 +1,63 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, make_response
 from flask_cors import CORS
-import requests
+import os
 import re
+import logging
+import traceback
+import requests
+import json
+from dotenv import load_dotenv
 
-app = Flask(__name__)
-CORS(app)  # allow frontend to talk to backend
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler('app.log')
+    ]
+)
+logger = logging.getLogger(__name__)
 
-OLLAMA_URL = "http://localhost:11434/api/generate"
+# Load environment variables from .env file
+load_dotenv()
 
-def format_response(raw_response):
-    """
-    Format the AI's response into a structured, point-wise format.
-    Handles different response styles and converts them to a consistent format.
-    """
-    if not raw_response:
-        return "I'm sorry, I couldn't generate a response. Please try again."
-    
-    # Clean up the response
-    response = raw_response.strip()
-    
-    # If response is already in point form, clean it up
-    if '\n- ' in response or '\n* ' in response or '\n1. ' in response:
-        # Normalize different bullet points to -
-        response = re.sub(r'\n\s*[\*•]\s+', '\n- ', response)
-        # Normalize numbered lists to point form
-        response = re.sub(r'\n\s*\d+\.\s+', '\n- ', response)
-        # Ensure proper line breaks
-        response = '\n'.join(line.strip() for line in response.split('\n'))
-        return response
-    
-    # If response contains colons that might indicate a list
-    if ':' in response and '\n' in response:
-        # Split by lines and format each line
-        lines = response.split('\n')
-        formatted_lines = []
-        
-        for line in lines:
-            line = line.strip()
-            if not line:
-                continue
-                
-            # If line contains a colon, format as a point
-            if ':' in line and len(line.split(':', 1)[0].split()) < 5:
-                formatted_lines.append(f"- {line}")
-            else:
-                # Otherwise, add as a regular line
-                formatted_lines.append(line)
-        
-        return '\n'.join(formatted_lines)
-    
-    # For very short responses, return as is
-    if len(response.split()) < 20:
-        return response
-    
-    # For longer responses, split into sentences and format as points
-    sentences = re.split(r'(?<=[.!?])\s+', response)
-    formatted_sentences = [f"- {sentence.strip()}" for sentence in sentences if sentence.strip()]
-    
-    return '\n'.join(formatted_sentences)
+# OpenRouter Configuration
+OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY')
+if not OPENROUTER_API_KEY or OPENROUTER_API_KEY == 'your_openrouter_api_key_here':
+    error_msg = "OpenRouter API key not found in environment variables"
+    logger.error(error_msg)
+    raise ValueError(error_msg)
+
+# Default model to use (can be overridden per request)
+DEFAULT_MODEL = "openai/gpt-3.5-turbo"
+
+# OpenRouter API endpoint
+OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
+
+# Headers for OpenRouter API
+OPENROUTER_HEADERS = {
+    "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+    "HTTP-Referer": "https://your-site.com",  # Optional, for analytics
+    "X-Title": "StandardsGPT"  # Optional, for analytics
+}
+
+app = Flask(__name__, static_folder='.', static_url_path='')
+
+# Simple CORS configuration
+CORS(app, resources={
+    r"/*": {
+        "origins": ["*"],
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type"]
+    }
+})
 
 def generate_structured_prompt(user_input):
     """
     Generate a prompt that encourages structured, point-wise responses.
     """
-    return f"""Please provide a clear, structured, and concise response to the following query.
+    return f"""You are a helpful AI assistant. Please provide a clear, structured, and concise response to the following query.
     Format your response in a point-wise manner if possible, using bullet points (-) for each point.
     Keep each point brief and to the point. If providing steps, number them.
     
@@ -71,42 +65,90 @@ def generate_structured_prompt(user_input):
     
     Response:"""
 
+@app.route('/')
+def index():
+    return app.send_static_file('index.html')
+
+# Add a catch-all route to serve the index.html for all other routes
+@app.route('/<path:path>')
+def catch_all(path):
+    return app.send_static_file('index.html')
+
 @app.route("/chat", methods=["POST"])
 def chat():
     try:
-        data = request.get_json()
-        user_input = data.get("message", "").strip()
+        # Log the incoming request
+        logger.info("Received request with data: %s", request.get_data())
         
+        data = request.get_json()
+        if not data:
+            logger.error("No JSON data received")
+            return jsonify({"error": "No data provided"}), 400
+            
+        user_input = data.get("message", "").strip()
         if not user_input:
-            return jsonify({"reply": "Please provide a valid message."})
+            logger.error("Empty message received")
+            return jsonify({"error": "Please provide a valid message."}), 400
+        
+        logger.info("Processing message: %s", user_input)
         
         # Generate a prompt that encourages structured responses
-        structured_prompt = generate_structured_prompt(user_input)
+        system_prompt = """You are a helpful AI assistant. Provide clear, structured, and concise responses.
+        Use bullet points (-) for each main point and number steps when providing instructions.
+        Keep responses brief and to the point."""
         
-        payload = {
-            "model": "phi3",
-            "prompt": structured_prompt,
-            "stream": False
-        }
-
-        # Make the request to the AI model
-        response = requests.post(OLLAMA_URL, json=payload, timeout=30)
-        response.raise_for_status()
+        # Call OpenRouter API
+        logger.info("Calling OpenRouter API...")
+        try:
+            payload = {
+                "model": DEFAULT_MODEL,
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_input}
+                ],
+                "temperature": 0.7,
+                "max_tokens": 500
+            }
+            
+            response = requests.post(
+                OPENROUTER_API_URL,
+                headers=OPENROUTER_HEADERS,
+                json=payload
+            )
+            response.raise_for_status()
+            
+            response_data = response.json()
+            reply = response_data['choices'][0]['message']['content'].strip()
+            logger.info("Successfully got response from OpenRouter")
+            
+            return jsonify({"reply": reply})
+            
+        except requests.exceptions.HTTPError as http_err:
+            error_msg = f"OpenRouter API HTTP Error: {str(http_err)}"
+            if hasattr(http_err, 'response') and http_err.response.text:
+                error_msg += f"\nResponse: {http_err.response.text}"
+            logger.error(error_msg)
+            return jsonify({"error": "Error processing your request with the AI service"}), 500
+            
+        except Exception as e:
+            error_msg = f"OpenRouter API Error: {str(e)}"
+            logger.error(error_msg)
         
-        # Get and format the response
-        raw_reply = response.json().get("response", "")
-        formatted_reply = format_response(raw_reply)
-        
-        return jsonify({"reply": formatted_reply})
-        
-    except requests.exceptions.RequestException as e:
-        return jsonify({
-            "reply": "I'm having trouble connecting to the AI service. Please try again later."
-        }), 500
     except Exception as e:
-        return jsonify({
-            "reply": "An error occurred while processing your request. Please try again."
-        }), 500
+        logger.exception("Unexpected error in chat endpoint")
+        return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    try:
+        # Verify OpenRouter API key is set
+        if not OPENROUTER_API_KEY or OPENROUTER_API_KEY == 'your_openrouter_api_key_here':
+            raise RuntimeError("OpenRouter API key not properly configured")
+            
+        logger.info("Starting StandardsGPT server with OpenRouter integration")
+        logger.info(f"Using model: {DEFAULT_MODEL}")
+        
+        app.run(debug=True, port=5000, host='0.0.0.0')
+    except Exception as e:
+        logger.error(f"Failed to start server: {str(e)}")
+        logger.error(traceback.format_exc())
+        raise

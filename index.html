@@ -356,6 +356,46 @@
         .send-button:active {
             transform: translateY(0) scale(0.98);
         }
+        
+        /* Loading spinner */
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Debug messages */
+        .debug-message {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.8);
+            color: #ff6b6b;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 100px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            z-index: 1000;
+        }
+        
+        /* Error message styling */
+        .error-message {
+            color: #ff6b6b;
+            border-left: 3px solid #ff6b6b;
+            padding-left: 10px;
+            margin: 5px 0;
+        }
 
         .typing-indicator {
             display: flex;
@@ -507,6 +547,7 @@
             // Add user message to chat
             addMessage('user', msg);
             userInput.value = ''; // Clear input field
+            userInput.disabled = true; // Disable input while processing
 
             // Show typing indicator
             const typingIndicator = document.createElement('div');
@@ -516,29 +557,109 @@
             chatMessages.appendChild(typingIndicator);
             chatMessages.scrollTop = chatMessages.scrollHeight;
 
-            // Send message to backend
-            fetch("http://127.0.0.1:5000/chat", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
+            // Show a debug message
+            const debugMsg = document.createElement('div');
+            debugMsg.className = 'debug-message';
+            debugMsg.textContent = 'Sending request to server...';
+            document.body.appendChild(debugMsg);
+
+            // Show loading state
+            const sendButton = document.querySelector('.send-button');
+            const originalButtonHTML = sendButton.innerHTML;
+            sendButton.innerHTML = '<div class="spinner"></div>';
+            sendButton.disabled = true;
+            
+            // Prepare the request - always use the full URL to avoid CORS issues
+            const apiUrl = 'http://127.0.0.1:5000/chat';
+            console.log('Sending request to:', apiUrl);
+            
+            // Send message to backend with minimal headers
+            fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({ message: msg })
             })
-            .then(res => {
-                if (!res.ok) throw new Error('Network response was not ok');
-                return res.json();
+            .then(async res => {
+                const responseText = await res.text();
+                debugMsg.textContent += '\nResponse status: ' + res.status;
+                
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}, body: ${responseText}`);
+                }
+                
+                try {
+                    return JSON.parse(responseText);
+                } catch (e) {
+                    throw new Error(`Invalid JSON response: ${responseText}`);
+                }
             })
             .then(data => {
+                debugMsg.textContent += '\nResponse received: ' + JSON.stringify(data).substring(0, 100) + '...';
                 // Remove typing indicator
                 const indicator = document.getElementById('typing-indicator');
                 if (indicator) indicator.remove();
+                
+                debugMsg.textContent += '\nResponse received: ' + JSON.stringify(data).substring(0, 150) + '...';
+                
+                // Remove typing indicator
+                const typingIndicator = document.getElementById('typing-indicator');
+                if (typingIndicator) typingIndicator.remove();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                if (!data.reply) {
+                    throw new Error('No reply in response data');
+                }
                 
                 // Add bot response to chat with typing effect
                 return addMessage('bot', data.reply, true);
             })
             .catch(err => {
                 console.error('Error:', err);
-                const indicator = document.getElementById('typing-indicator');
-                if (indicator) indicator.remove();
-                addMessage('bot', 'Sorry, I encountered an error. Please try again.');
+                debugMsg.textContent += '\nError: ' + (err.message || 'Unknown error occurred');
+                
+                // Remove typing indicator if it exists
+                const errorIndicator = document.getElementById('typing-indicator');
+                if (errorIndicator) errorIndicator.remove();
+                
+                // Show user-friendly error message
+                let errorMessage = 'Sorry, I encountered an error. Please try again.';
+                
+                if (err.message) {
+                    if (err.message.includes('Failed to fetch')) {
+                        errorMessage = 'Failed to connect to the server. Please make sure the backend is running.';
+                    } else if (err.message.includes('NetworkError')) {
+                        errorMessage = 'Network error. Please check your internet connection.';
+                    } else if (err.message.includes('Authentication') || err.message.includes('API key')) {
+                        errorMessage = 'Authentication error. Please check your API key in the .env file.';
+                    } else if (err.message.includes('Rate limit')) {
+                        errorMessage = 'Rate limit exceeded. Please wait a moment and try again.';
+                    } else {
+                        errorMessage = `Error: ${err.message}`;
+                    }
+                }
+                
+                console.error('Error details:', {
+                    message: err.message,
+                    name: err.name,
+                    stack: err.stack
+                });
+                
+                addMessage('bot', errorMessage);
+            })
+            .finally(() => {
+                // Re-enable input and restore send button
+                userInput.disabled = false;
+                userInput.focus();
+                sendButton.innerHTML = originalButtonHTML;
+                sendButton.disabled = false;
+                
+                // Auto-scroll to bottom of chat
+                chatMessages.scrollTop = chatMessages.scrollHeight;
             });
         }
 

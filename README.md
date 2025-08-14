@@ -21,13 +21,17 @@ A web-based AI assistant that provides structured, point-wise responses to user 
    pip install -r requirements.txt
    ```
 
-4. **Set up environment variables**
-   - Rename `.env.example` to `.env`
-   - Add your OpenAI API key to the `.env` file:
+4. **Set up configuration**
+   - Copy the example configuration file:
+     ```bash
+     cp config.example.py config.py
      ```
-     OPENAI_API_KEY=your_openai_api_key_here
+   - Edit `config.py` and add your OpenRouter API key:
+     ```python
+     OPENROUTER_API_KEY = "your_openrouter_api_key_here"
      ```
-   - Get an API key from [OpenAI](https://platform.openai.com/api-keys)
+   - Get an API key from [OpenRouter](https://openrouter.ai/keys)
+   - Adjust other settings like `DEFAULT_MODEL` if needed
 
 5. **Run the application**
    ```bash
@@ -41,7 +45,10 @@ A web-based AI assistant that provides structured, point-wise responses to user 
 1. Create an account on [PythonAnywhere](https://www.pythonanywhere.com/)
 2. Upload your project files
 3. Set up a web app with Flask
-4. Add your environment variables in the web app configuration
+4. In the web app configuration, add your OpenRouter API key as an environment variable:
+   ```
+   OPENROUTER_API_KEY=your_openrouter_api_key_here
+   ```
 5. Reload your web app
 
 ### Option 2: Vercel (Serverless)

@@ -6,7 +6,15 @@ import logging
 import traceback
 import requests
 import json
-from dotenv import load_dotenv
+
+# Import configuration
+from config import OPENROUTER_API_KEY, DEFAULT_MODEL, HOST, PORT, DEBUG
+
+# Debug: Print configuration
+print("\n=== Configuration ===")
+print(f"Using model: {DEFAULT_MODEL}")
+print(f"Server running on: http://{HOST}:{PORT}")
+print("===================\n")
 
 # Configure logging
 logging.basicConfig(
@@ -22,15 +30,22 @@ logger = logging.getLogger(__name__)
 # Load environment variables from .env file
 load_dotenv()
 
-# OpenRouter Configuration
+# Get API key from environment variables
 OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY')
+DEFAULT_MODEL = os.getenv('DEFAULT_MODEL', 'openai/gpt-3.5-turbo')
+
+# Debug: Print environment variables
+print("\n=== Environment Variables ===")
+print(f"OPENROUTER_API_KEY: {'*' * 8 + OPENROUTER_API_KEY[-4:] if OPENROUTER_API_KEY else 'Not set'}")
+print(f"DEFAULT_MODEL: {DEFAULT_MODEL}")
+print("==========================\n")
+
 if not OPENROUTER_API_KEY or OPENROUTER_API_KEY == 'your_openrouter_api_key_here':
+    print("\n!!! WARNING: OpenRouter API key is not properly configured in .env file !!!\n")
     error_msg = "OpenRouter API key not found in environment variables"
     logger.error(error_msg)
     raise ValueError(error_msg)
 
-# Default model to use (can be overridden per request)
-DEFAULT_MODEL = "openai/gpt-3.5-turbo"
 
 # OpenRouter API endpoint
 OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
@@ -44,7 +59,7 @@ OPENROUTER_HEADERS = {
 
 app = Flask(__name__, static_folder='.', static_url_path='')
 
-# Simple CORS configuration
+# Enable CORS for all routes
 CORS(app, resources={
     r"/*": {
         "origins": ["*"],
@@ -52,6 +67,10 @@ CORS(app, resources={
         "allow_headers": ["Content-Type"]
     }
 })
+
+# Set configuration from config.py
+app.config['OPENROUTER_API_KEY'] = OPENROUTER_API_KEY
+app.config['DEFAULT_MODEL'] = DEFAULT_MODEL
 
 def generate_structured_prompt(user_input):
     """
@@ -64,6 +83,15 @@ def generate_structured_prompt(user_input):
     Query: {user_input}
     
     Response:"""
+
+@app.route('/env')
+def show_env():
+    import os
+    return {
+        'OPENROUTER_API_KEY': f"{os.environ.get('OPENROUTER_API_KEY', 'Not found')[:10]}...",
+        'DEFAULT_MODEL': os.environ.get('DEFAULT_MODEL', 'Not found'),
+        'FLASK_ENV': os.environ.get('FLASK_ENV', 'Not set')
+    }
 
 @app.route('/')
 def index():
@@ -78,60 +106,104 @@ def catch_all(path):
 def chat():
     try:
         # Log the incoming request
-        logger.info("Received request with data: %s", request.get_data())
+        logger.info(f"Incoming request: {request.json}")
         
+        # Get user input from request
         data = request.get_json()
-        if not data:
-            logger.error("No JSON data received")
-            return jsonify({"error": "No data provided"}), 400
+        if not data or 'message' not in data:
+            logger.error("Invalid request: No message in request")
+            return jsonify({"error": "No message provided"}), 400
             
-        user_input = data.get("message", "").strip()
+        user_input = data['message'].strip()
         if not user_input:
-            logger.error("Empty message received")
-            return jsonify({"error": "Please provide a valid message."}), 400
-        
-        logger.info("Processing message: %s", user_input)
+            logger.error("Invalid request: Empty message")
+            return jsonify({"error": "Message cannot be empty"}), 400
         
         # Generate a prompt that encourages structured responses
         system_prompt = """You are a helpful AI assistant. Provide clear, structured, and concise responses.
         Use bullet points (-) for each main point and number steps when providing instructions.
         Keep responses brief and to the point."""
         
-        # Call OpenRouter API
         logger.info("Calling OpenRouter API...")
+        
         try:
-            payload = {
-                "model": DEFAULT_MODEL,
-                "messages": [
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_input}
-                ],
-                "temperature": 0.7,
-                "max_tokens": 500
+            logger.info("Sending request to OpenRouter API...")
+            logger.info(f"Using model: {DEFAULT_MODEL}")
+            logger.info(f"User input: {user_input[:200]}...")  # Log first 200 chars of input
+            
+            # Prepare request data
+            request_headers = {
+                'Authorization': f'Bearer {OPENROUTER_API_KEY}',
+                'Content-Type': 'application/json',
+                'HTTP-Referer': 'http://localhost:5000',
+                'X-Title': 'StandardsGPT'
             }
             
+            request_data = {
+                'model': DEFAULT_MODEL,
+                'messages': [
+                    {'role': 'system', 'content': system_prompt},
+                    {'role': 'user', 'content': user_input}
+                ],
+                'temperature': 0.7
+            }
+            
+            logger.info(f"Request headers: {request_headers}")
+            logger.info(f"Request data: {request_data}")
+            
+            # Call OpenRouter API
             response = requests.post(
-                OPENROUTER_API_URL,
-                headers=OPENROUTER_HEADERS,
-                json=payload
+                'https://openrouter.ai/api/v1/chat/completions',
+                headers=request_headers,
+                json=request_data,
+                timeout=30
             )
-            response.raise_for_status()
             
-            response_data = response.json()
-            reply = response_data['choices'][0]['message']['content'].strip()
-            logger.info("Successfully got response from OpenRouter")
+            logger.info(f"OpenRouter API response status: {response.status_code}")
+            logger.info(f"Response headers: {dict(response.headers)}")
             
-            return jsonify({"reply": reply})
+            # Log the raw response for debugging
+            logger.info(f"Raw response content: {response.text}")
+            
+            try:
+                result = response.json()
+                logger.info(f"Parsed response: {json.dumps(result, indent=2)[:500]}...")
+                
+                # Check for errors in the response
+                if 'error' in result:
+                    error_msg = f"OpenRouter API error: {result.get('error', {}).get('message', 'Unknown error')}"
+                    logger.error(error_msg)
+                    return jsonify({"error": error_msg}), 500
+                
+                # Extract the response content
+                if 'choices' in result and result['choices'] and 'message' in result['choices'][0]:
+                    reply = result['choices'][0]['message']['content']
+                    return jsonify({"reply": reply})
+                else:
+                    error_msg = f"Unexpected response format: {json.dumps(result, indent=2)[:1000]}"
+                    logger.error(error_msg)
+                    return jsonify({"error": "Unexpected response format from AI service"}), 500
+                    
+            except json.JSONDecodeError as e:
+                error_msg = f"Failed to parse API response: {str(e)}\nResponse: {response.text}"
+                logger.error(error_msg)
+                return jsonify({"error": "Failed to parse AI service response"}), 500
             
         except requests.exceptions.HTTPError as http_err:
+            logger.error(f"HTTP Error: {str(http_err)}")
+            logger.error(f"Response content: {http_err.response.text if hasattr(http_err, 'response') else 'No response'}")
+            logger.error(f"Status code: {http_err.response.status_code if hasattr(http_err, 'response') else 'N/A'}")
+            logger.error(f"Response headers: {dict(http_err.response.headers) if hasattr(http_err, 'response') and hasattr(http_err.response, 'headers') else 'N/A'}")
             error_msg = f"OpenRouter API HTTP Error: {str(http_err)}"
-            if hasattr(http_err, 'response') and http_err.response.text:
-                error_msg += f"\nResponse: {http_err.response.text}"
+            if hasattr(http_err, 'response') and http_err.response is not None:
+                error_msg += f"\nStatus Code: {http_err.response.status_code}"
+                error_msg += f"\nResponse Text: {http_err.response.text}"
+                error_msg += f"\nHeaders: {dict(http_err.response.headers)}"
             logger.error(error_msg)
-            return jsonify({"error": "Error processing your request with the AI service"}), 500
+            return jsonify({"error": f"AI service error: {str(http_err)}"}), 500
             
         except Exception as e:
-            error_msg = f"OpenRouter API Error: {str(e)}"
+            error_msg = f"Error processing request: {str(e)}"
             logger.error(error_msg)
         
     except Exception as e:
@@ -140,14 +212,10 @@ def chat():
 
 if __name__ == "__main__":
     try:
-        # Verify OpenRouter API key is set
-        if not OPENROUTER_API_KEY or OPENROUTER_API_KEY == 'your_openrouter_api_key_here':
-            raise RuntimeError("OpenRouter API key not properly configured")
-            
         logger.info("Starting StandardsGPT server with OpenRouter integration")
         logger.info(f"Using model: {DEFAULT_MODEL}")
         
-        app.run(debug=True, port=5000, host='0.0.0.0')
+        app.run(debug=DEBUG, port=PORT, host=HOST)
     except Exception as e:
         logger.error(f"Failed to start server: {str(e)}")
         logger.error(traceback.format_exc())

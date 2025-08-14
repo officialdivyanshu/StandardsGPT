@@ -1,6 +1,6 @@
 # StandardsGPT - AI Assistant
 
-A web-based AI assistant that provides structured, point-wise responses to user queries.
+A web-based AI assistant for GYM GOERS.
 
 ## Setup Instructions
 
